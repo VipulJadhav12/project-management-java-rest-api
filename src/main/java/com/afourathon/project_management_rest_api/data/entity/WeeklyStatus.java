@@ -10,6 +10,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -29,6 +32,7 @@ public class WeeklyStatus {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "weekly_status_id")
 	private Long id;
 	
 	private String status;
@@ -43,13 +47,17 @@ public class WeeklyStatus {
 	private LocalDate weeklyEndDate;
 	
 	@Column(name = "created_on")
+	@DateTimeFormat(iso = ISO.NONE,
+	pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createdOn;
 	
 	@Column(name = "last_modified_on")
+	@DateTimeFormat(iso = ISO.NONE,
+	pattern = "yyyy-MM-dd HH:mm:ss a")
 	@JsonFormat
-    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime lastModifiedOn;
 	
 	public WeeklyStatus(String status, String highlight, String risk, LocalDate weeklyEndDate, LocalDateTime createdOn, LocalDateTime lastModifiedOn) {

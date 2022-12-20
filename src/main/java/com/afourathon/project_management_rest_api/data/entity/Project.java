@@ -38,6 +38,7 @@ public class Project {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "project_id")
 	private Long id;
 	
 	private String name;
@@ -70,7 +71,7 @@ public class Project {
 	
 	@JsonIgnore
 	@OneToMany(targetEntity = WeeklyStatus.class, cascade = CascadeType.ALL)
-	@JoinColumn(name = "pws_fk", referencedColumnName = "id")
+	@JoinColumn(name = "project_id", referencedColumnName = "project_id")
 	private List<WeeklyStatus> weeklyStatuses;
 
 	public Project(String name, LocalDate startDate, LocalDate endDate, String managerName, String managerEmail, Set<MailingList> mailingList) {

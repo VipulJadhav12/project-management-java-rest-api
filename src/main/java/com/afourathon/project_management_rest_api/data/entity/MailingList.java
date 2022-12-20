@@ -31,6 +31,7 @@ public class MailingList {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "email_id")
 	private Long id;
 	
 	@Column(name = "recipient_name")
