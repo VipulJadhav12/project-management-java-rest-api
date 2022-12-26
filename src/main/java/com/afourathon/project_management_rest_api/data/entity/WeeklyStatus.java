@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
@@ -22,7 +23,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "weekly_status")
+@Table(name = "weekly_status", 
+uniqueConstraints = { @UniqueConstraint(columnNames = { "weekly_status_id", "weekly_end_date" }) })
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -31,7 +33,7 @@ import lombok.ToString;
 public class WeeklyStatus {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "weekly_status_id")
 	private Long id;
 	
@@ -55,7 +57,7 @@ public class WeeklyStatus {
 	
 	@Column(name = "last_modified_on")
 	@DateTimeFormat(iso = ISO.NONE,
-	pattern = "yyyy-MM-dd HH:mm:ss a")
+	pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat
     (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime lastModifiedOn;

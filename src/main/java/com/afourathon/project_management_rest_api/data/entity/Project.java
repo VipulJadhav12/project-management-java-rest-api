@@ -37,10 +37,11 @@ import lombok.ToString;
 public class Project {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "project_id")
 	private Long id;
 	
+	@Column(name = "project_name", unique = true)
 	private String name;
 	
 	@Column(name = "start_date")
@@ -59,13 +60,13 @@ public class Project {
 	@Column(name = "manager_email")
 	private String managerEmail;
 	
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "project_mailing_list", 
 			joinColumns = {
-					@JoinColumn(name = "project_id", referencedColumnName = "id")
+					@JoinColumn(name = "project_id", referencedColumnName = "project_id")
 			}, 
 			inverseJoinColumns = {
-					@JoinColumn(name = "mail_id", referencedColumnName = "id")
+					@JoinColumn(name = "mail_id", referencedColumnName = "mail_id")
 			})
 	private Set<MailingList> mailingList = new HashSet<>();
 	
@@ -73,14 +74,23 @@ public class Project {
 	@OneToMany(targetEntity = WeeklyStatus.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "project_id", referencedColumnName = "project_id")
 	private List<WeeklyStatus> weeklyStatuses;
+	
+	public Project(String name, LocalDate startDate, LocalDate endDate, String managerName, String managerEmail) {
+		super();
+		this.name = name;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.managerName = managerName;
+		this.managerEmail = managerEmail;
+	}
 
 	public Project(String name, LocalDate startDate, LocalDate endDate, String managerName, String managerEmail, Set<MailingList> mailingList) {
 		super();
 		this.name = name;
-		this.managerName = managerName;
-		this.managerEmail = managerEmail;
 		this.startDate = startDate;
 		this.endDate = endDate;
+		this.managerName = managerName;
+		this.managerEmail = managerEmail;
 		this.mailingList = mailingList;
 	}
 

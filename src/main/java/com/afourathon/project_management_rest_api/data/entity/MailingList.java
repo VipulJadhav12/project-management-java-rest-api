@@ -1,18 +1,12 @@
 package com.afourathon.project_management_rest_api.data.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +15,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "mailing_list")
+@Table(name = "mailing_list", 
+uniqueConstraints = { @UniqueConstraint(columnNames = { "recipient_name", "email" }) })
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -30,8 +25,8 @@ import lombok.ToString;
 public class MailingList {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "email_id")
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "mail_id")
 	private Long id;
 	
 	@Column(name = "recipient_name")
@@ -39,10 +34,6 @@ public class MailingList {
 	
 	private String email;
 	
-	@JsonIgnore
-	@ManyToMany(mappedBy = "mailingList", fetch = FetchType.LAZY)
-	private Set<Project> projects = new HashSet<>();;
-
 	public MailingList(String recipientName, String email) {
 		super();
 		this.recipientName = recipientName;
