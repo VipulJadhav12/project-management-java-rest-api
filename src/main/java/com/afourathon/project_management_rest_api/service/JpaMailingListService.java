@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.afourathon.project_management_rest_api.data.entity.MailingList;
 import com.afourathon.project_management_rest_api.data.entity.Project;
@@ -14,6 +15,7 @@ import com.afourathon.project_management_rest_api.data.payloads.repository.Maili
 import com.afourathon.project_management_rest_api.data.payloads.repository.ProjectRepository;
 import com.afourathon.project_management_rest_api.data.payloads.request.MailingListRequest;
 
+@Service
 public class JpaMailingListService implements MailingListService {
 
 	@Autowired
@@ -118,7 +120,7 @@ public class JpaMailingListService implements MailingListService {
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	@Override

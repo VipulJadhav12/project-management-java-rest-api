@@ -33,7 +33,7 @@ uniqueConstraints = { @UniqueConstraint(columnNames = { "weekly_status_id", "wee
 public class WeeklyStatus {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "weekly_status_id")
 	private Long id;
 	

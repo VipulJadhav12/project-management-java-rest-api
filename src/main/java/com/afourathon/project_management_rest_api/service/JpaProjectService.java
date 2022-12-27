@@ -11,6 +11,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.afourathon.project_management_rest_api.data.entity.MailingList;
@@ -19,6 +20,7 @@ import com.afourathon.project_management_rest_api.data.payloads.repository.Maili
 import com.afourathon.project_management_rest_api.data.payloads.repository.ProjectRepository;
 import com.afourathon.project_management_rest_api.data.payloads.request.ProjectRequest;
 
+@Service
 public class JpaProjectService implements ProjectService {
 
 	@Autowired
@@ -198,7 +200,7 @@ public class JpaProjectService implements ProjectService {
 
 			Optional<Project> objProject = projectRepository.findById(projectId);
 
-			if(objProject.isPresent())
+			if(!objProject.isPresent())
 				return true;
 		}
 		catch(IllegalArgumentException ex) {
