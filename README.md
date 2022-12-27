@@ -99,3 +99,136 @@ By default, the API will be available at
   http://localhost:<PORT_NO>/api/v1/emails
 ```
 
+## API Reference
+
+### List of Project level APIs:
+
+#### Get default health check
+
+```http
+  GET /api/v1/projects
+```
+#### Get project by ID
+
+```http
+  GET /api/v1/projects/getBy=ID/project/{projectId}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `projectId`      | `long` | **Required**. Id of project to fetch, must not be negative. |
+
+#### Get project by NAME
+
+```http
+  GET /api/v1/projects/getBy=NAME/project/{projectName}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `projectName`      | `long` | **Required**. Name of project to fetch. |
+
+#### Get all projects
+
+```http
+  GET /api/v1/projects/getAllBy=NONE
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `NA` | `NA` |  |
+
+#### Get all projects with pagination and sorted by given FIELD in ASCENDING order
+
+```http
+  GET /api/v1/projects/getAllBy=NONE/pagination=TRUE/offset/{offset}/pageSize/{pageSize}/sort=ASC/sortBy/{field}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `offset` | `int` | **Required**. Zero-based page index, must not be negative. |
+| `pageSize` | `int` | **Required**. Size of the page to be returned, must be greater than 0. |
+| `field` | `string` | **Required**. Field name of the project entity. |
+
+#### Get all projects with pagination and sorted by given FIELD in DESCENDING order
+
+```http
+  GET /api/v1/projects/getAllBy=NONE/pagination=TRUE/offset/{offset}/pageSize/{pageSize}/sort=DESC/sortBy/{field}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `offset` | `int` | **Required**. Zero-based page index, must not be negative. |
+| `pageSize` | `int` | **Required**. Size of the page to be returned, must be greater than 0. |
+| `field` | `string` | **Required**. Field name of the project entity. |
+
+#### Add a project
+
+```http
+  POST /api/v1/projects/add
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `NA` | `NA` |  |
+
+| Data Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `{"name": "Project #1", "startDate": "yyyy-MM-dd", "endDate": "yyyy-MM-dd", "managerName": "Thomas Hardy", "managerEmail": "thardy@myorg.com"` | `JSON` |  |
+
+#### Update a project
+
+```http
+  PUT /api/v1/projects/updateBy=ID/project/{projectId}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
+
+| Data Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `{"name": "Project #1", "startDate": "yyyy-MM-dd", "endDate": "yyyy-MM-dd", "managerName": "Thomas Hardy", "managerEmail": "thardy@myorg.com"` | `JSON` |  |
+
+#### Assign an email to a project
+
+```http
+  PUT /api/v1/projects/assignEmail/project/{projectId}/email/{mailId}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
+| `mailId` | `long` | **Required**. Id of an email to fetch, must not be negative. |
+
+#### Remove an email from a project
+
+```http
+  PUT /api/v1/projects/removeEmail/project/{projectId}/email/{mailId}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
+| `mailId` | `long` | **Required**. Id of an email to fetch, must not be negative. |
+
+#### Delete a project by ID
+
+```http
+  DELETE /api/v1/projects/deleteBy=ID/project/{projectId}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
+
+#### Delete all projects
+
+```http
+  DELETE /api/v1/projects/deleteAllBy=NONE
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `NA` | `NA` |  |
+
