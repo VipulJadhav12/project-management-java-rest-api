@@ -184,7 +184,7 @@ By default, the API will be available at
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
+| `projectId` | `long` | **Required**. Id of project to fetch and update, must not be negative. |
 
 | Data Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
@@ -199,7 +199,7 @@ By default, the API will be available at
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
-| `mailId` | `long` | **Required**. Id of an email to fetch, must not be negative. |
+| `mailId` | `long` | **Required**. Id of an email to assign, must not be negative. |
 
 #### Remove an email from a project
 
@@ -210,7 +210,7 @@ By default, the API will be available at
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
-| `mailId` | `long` | **Required**. Id of an email to fetch, must not be negative. |
+| `mailId` | `long` | **Required**. Id of an email to remove, must not be negative. |
 
 #### Delete a project by ID
 
@@ -220,7 +220,7 @@ By default, the API will be available at
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `projectId` | `long` | **Required**. Id of project to fetch, must not be negative. |
+| `projectId` | `long` | **Required**. Id of project to delete, must not be negative. |
 
 #### Delete all projects
 
@@ -231,4 +231,110 @@ By default, the API will be available at
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `NA` | `NA` |  |
+
+### List of Mailing-List level APIs:
+
+#### Get default health check
+
+```http
+  GET /api/v1/emails
+```
+#### Get email by ID
+
+```http
+  GET /api/v1/emails/getBy=ID/email/{mailId}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `mailId`  | `long`   | **Required**. Id of email to fetch, must not be negative. |
+
+#### Get email by RECIPIENT_NAME
+
+```http
+  GET /api/v1/emails/getBy=RECIPIENT_NAME/recipient_name/{recipientName}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `recipientName`  | `string`   | **Required**. Recipient name of email to fetch. |
+
+#### Get all emails
+
+```http
+  GET /api/v1/emails/getAllBy=NONE
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `NA`  | `NA`   |  |
+
+#### Get all un-assigned emails by PROJECT_ID
+
+```http
+  GET /api/v1/emails/getAllUnAssignedBy=PROJECT_ID/project/{projectId}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `projectId`  | `long`   | **Required**. Id of project for which un-assigned emails to be fetch, must not be negative. |
+
+#### Add an email
+
+```http
+  POST /api/v1/emails/add
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `NA`  | `NA`   |  |
+
+| Data Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `{ "recipientName": "John Smith", "email": "foo.bar@myorg.com" }` | `JSON` |  |
+
+#### Update an email
+
+```http
+  PUT /api/v1/emails/updateBy=ID/email/{mailId}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `mailId`  | `long`   | **Required**. Id of email to fetch and update, must not be negative. |
+
+| Data Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `{ "recipientName": "John Smith", "email": "foo.bar@myorg.com" }` | `JSON` |  |
+
+#### Delete an email by ID
+
+```http
+  DELETE /api/v1/emails/deleteBy=ID/email/{mailId}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `mailId`  | `long`   | **Required**. Id of email to delete, must not be negative. |
+
+#### Delete an email by ID assigned to a project
+
+```http
+  DELETE /api/v1/emails/deleteBy=ID/project/{projectId}/email/{mailId}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `projectId`  | `long`   | **Required**. Id of project to fetch, must not be negative. |
+| `mailId`  | `long`   | **Required**. Id of email to delete, must not be negative. |
+
+#### Delete all emails
+
+```http
+  DELETE /api/v1/emails/deleteAllBy=NONE
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `NA`  | `NA`   |  |
 
