@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.afourathon.project_management_rest_api.data.entity.MailingList;
 import com.afourathon.project_management_rest_api.data.entity.Project;
@@ -102,6 +103,7 @@ public class JpaMailingListService implements MailingListService {
 		return null;
 	}
 
+	@Transactional
 	@Override
 	public boolean deleteEmailById(Long mailId) {
 		Optional<MailingList> objExistingEmail = mailingListRepository.findById(mailId);
@@ -123,6 +125,7 @@ public class JpaMailingListService implements MailingListService {
 		return true;
 	}
 
+	@Transactional
 	@Override
 	public boolean deleteEmailByIdAndProjectId(Long projectId, Long mailId) {
 		Optional<Project> objExistingProject = projectRepository.findById(projectId);
@@ -154,6 +157,7 @@ public class JpaMailingListService implements MailingListService {
 		return true;
 	}
 
+	@Transactional
 	@Override
 	public boolean deleteAllEmails() {
 		mailingListRepository.deleteAll();
