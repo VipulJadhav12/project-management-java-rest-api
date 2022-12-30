@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y vim curl less mlocate netcat telnet ipu
 COPY src/main/resources/env.application.properties application.properties
 COPY entrypoint.sh .
 COPY /target/*.jar .
-COPY env.values .
+#COPY env.values .
 EXPOSE 9191
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["bash", "/app/entrypoint.sh"]

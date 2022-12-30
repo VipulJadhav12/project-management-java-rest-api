@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: projectmanagement-be-service
+ # annotations:
+ #   service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  selector:
+    app: projectmanagement-be
+  ports:
+  - protocol: TCP
+    port: 9191
+    targetPort: 9191
+  type: NodePort
+  nodePort: 30001
