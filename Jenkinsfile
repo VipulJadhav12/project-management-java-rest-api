@@ -35,10 +35,24 @@ pipeline{
 
         stage("Deploy service on MightyMinions Cluster") {
           steps {
+
+            /*
             kubernetesDeploy(kubeconfigId: 'mightyminions-kubeconfig',
                configs: 'projectmanagement-be.yaml,projectmanagement-be-svc.yaml',
                enableConfigSubstitution: true)
+            */
+
+            withKubeConfig( credentialsId: 'mightyminions-kubeconfig' ) {
+            sh '''
+                kubectl apply -f projectmanagement-be.yaml -f projectmanagement-be-svc.yaml
+            '''
+            
+                }
             }
         }
+
+
+
+
     }
 }
