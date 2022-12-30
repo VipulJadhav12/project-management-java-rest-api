@@ -1,9 +1,14 @@
 package com.afourathon.project_management_rest_api.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class Configurations {
+@EnableWebMvc
+public class Configurations implements WebMvcConfigurer {
 	
 	public static final String INVALID_PROJECT_ID = "Invalid Project ID. Project doesn't exists with ID: %d.";
 	public static final String INVALID_PROJECT_NAME = "Invalid Project Name. Project doesn't exists with Name: %s.";
@@ -27,4 +32,12 @@ public class Configurations {
 	public static final String DELETE_ALL_EMAILS_ON_SUCCESS = "All emails has been deleted successfully!";
 	public static final String DELETE_ALL_EMAILS_ON_FAILED = "An error occured while deleting all emails.";
 
+	@Value("${cors.origin.url}")
+	private String CORS_ORIGIN_URL;
+	
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		System.out.println(CORS_ORIGIN_URL);
+		registry.addMapping("/**").allowedOrigins(CORS_ORIGIN_URL);
+	}
 }
