@@ -11,5 +11,5 @@ spec:
   - protocol: TCP
     port: 9191
     targetPort: 9191
+    nodePort: 30001
   type: NodePort
-  nodePort: 30001
