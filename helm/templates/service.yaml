@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "projectmanagement-be.fullname" . }}
+  {{- if .Values.config.namespace }}
+  namespace: "{{ .Values.config.namespace }}"
+  {{- end }}
+  labels:
+    app: {{ include "projectmanagement-be.name" . }}
+  {{- if .Values.service.annotations }}
+  annotations:
+    {{- .Values.service.annotations | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if .Values.service.externalIPs }}
+  externalIPs:
+    {{- .Values.service.externalIPs | toYaml | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: mainport
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}
+      nodePort: {{.Values.service.nodePort}}
+      {{- end }}
+  selector:
+    app: {{ include "projectmanagement-be.name" . }}

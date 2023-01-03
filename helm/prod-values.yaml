@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: "krashnat922/afourathon2.0"
+  tag: "projectmanagement-be"
+  pullPolicy: "Always"
+
+config:
+  #namespace: "afourathon-be"
+  #serviceAccount: "afourathon-be"
+  # This path is used to mount the application conf over init container.
+  secretName: afourathon-wsr
+  secretPath: "/app/env.values"
+  subPath: "env.values"
+       
+#resources:
+#  requests:
+#    cpu: "2m"
+#    memory: "350Mi"
+#    ephemeral-storage: "2Gi"
+
+#This is Configuration for local port inside container(POD -> kubernetes name.).
+service:
+  type: NodePort
+  port: 9191
+  targetPort: 9191
+  nodePort: 30001
