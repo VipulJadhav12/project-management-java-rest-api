@@ -26,6 +26,7 @@ This API provides HTTP endpoints for the following operations:
 - Maven 3.0+
 - Spring Boot 2.7.0+
 - JUnit 5
+- Springfox Swagger2
 - Docker Engine
 - Latest MySQL 8.0+
 
@@ -96,7 +97,7 @@ or
   mvn clean package -Dmaven.test.skip=true
 ```
 
-Run the above packaged source code through java command line. For that, go to the target directory
+Run the above packaged source code through java command line. For that, go to the project's target directory
 
 ```bash
   java -jar project-management-rest-api-0.0.1-SNAPSHOT.jar
@@ -111,6 +112,12 @@ and
 ```bash
   http://localhost:<PORT_NO>/api/v1/emails
 ```
+
+## Documentation
+
+By default, the Swagger based JSON API documentation of this project will be available at
+
+- Swagger API Doc - [http://localhost:<PORT_NO>/swagger-ui/index.html](http://localhost:<PORT_NO>/swagger-ui/index.html)
 
 ## API Reference
 
