@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "projectmanagement-be.fullname" . }}
+  {{- if .Values.config.namespace }}
+  namespace: "{{ .Values.config.namespace }}"
+  {{- end }}
+  labels:
+    app: {{ include "projectmanagement-be.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "projectmanagement-be.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "projectmanagement-be.name" . }}
+    spec:
+      #serviceAccount: {{ .Values.config.serviceAccount }}
+      volumes:
+        - name: "placeholder-values"
+          secret:
+            secretName: "{{ .Values.config.secretName }}"
+      containers:
+        # Main application container
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: "placeholder-values"
+              mountPath: "{{ .Values.config.secretPath }}"
+              subPath: "{{ .Values.config.subPath }}"
+              readOnly: true

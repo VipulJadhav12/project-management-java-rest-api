@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -33,14 +34,17 @@ uniqueConstraints = { @UniqueConstraint(columnNames = { "weekly_status_id", "wee
 public class WeeklyStatus {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "weekly_status_id")
 	private Long id;
 	
+	@Lob
 	private String status;
 	
+	@Lob
 	private String highlight;
 	
+	@Lob
 	private String risk;
 	
 	@Column(name = "weekly_end_date")
