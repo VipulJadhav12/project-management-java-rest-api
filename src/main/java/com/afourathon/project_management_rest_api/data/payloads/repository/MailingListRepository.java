@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.afourathon.project_management_rest_api.data.entity.MailingList;
@@ -22,4 +23,11 @@ public interface MailingListRepository extends JpaRepository<MailingList, Long> 
 			  nativeQuery = true
 		  )
 	public List<MailingList> findAllUnAssignedEmailsByProjectId(Long projectId);
+	
+	@Modifying
+	@Query(
+			  value = "DELETE FROM project_mailing_list pml WHERE pml.mail_id = ?1", 
+			  nativeQuery = true
+		  )
+	public void deleteEmailByProjects(Long mailId);
 }
