@@ -26,7 +26,7 @@ public interface MailingListRepository extends JpaRepository<MailingList, Long> 
 	
 	@Modifying
 	@Query(
-			  value = "DELETE FROM project_mailing_list pml WHERE pml.mail_id = ?1", 
+			  value = "DELETE FROM project_mailing_list WHERE mail_id = ?1", 
 			  nativeQuery = true
 		  )
 	public void deleteEmailByProjects(Long mailId);
