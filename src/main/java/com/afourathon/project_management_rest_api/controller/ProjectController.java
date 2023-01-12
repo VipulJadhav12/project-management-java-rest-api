@@ -23,6 +23,7 @@ import com.afourathon.project_management_rest_api.data.entity.Project;
 import com.afourathon.project_management_rest_api.data.payloads.request.ProjectRequest;
 import com.afourathon.project_management_rest_api.data.payloads.response.ApiResponse;
 import com.afourathon.project_management_rest_api.exception.EmailNotFoundException;
+import com.afourathon.project_management_rest_api.exception.ProjectAlreadyExistException;
 import com.afourathon.project_management_rest_api.exception.ProjectNotFoundException;
 import com.afourathon.project_management_rest_api.service.MailingListService;
 import com.afourathon.project_management_rest_api.service.ProjectService;
@@ -92,6 +93,14 @@ public class ProjectController {
 	
 	@PostMapping("/add")
 	public ResponseEntity<ApiResponse> addProject(@RequestBody @Valid ProjectRequest projectRequest) {
+		String projectName = projectRequest.getName();
+		
+		// Checking if the Project already exists with the given name
+		Optional<Project> existingProject = projectService.findProjectByName(projectName);
+		if(existingProject.isPresent()) {
+			throw new ProjectAlreadyExistException(String.format(Configurations.PROJECT_ALREADY_EXIST, projectName));
+		}
+		
 		Project project = projectService.addProject(projectRequest);
 		
 		ApiResponse apiResponse = null;

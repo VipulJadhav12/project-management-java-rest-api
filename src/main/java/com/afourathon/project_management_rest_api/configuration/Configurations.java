@@ -18,6 +18,7 @@ public class Configurations implements WebMvcConfigurer {
 	public static final String PROJECT_ADD_ON_FAILED = "An error occured while adding new project into database.";
 	public static final String PROJECT_UPDATE_ON_SUCCESS = "Project {ID: %d} has been updated successfully!";
 	public static final String PROJECT_UPDATE_ON_FAILED = "An error occured while updating Project with ID: %d.";
+	public static final String PROJECT_ALREADY_EXIST = "Project already exists with name: %s.";
 	public static final String DELETE_PROJECT_ON_SUCCESS = "Project {ID: %d} has been deleted successfully!";
 	public static final String DELETE_PROJECT_ON_FAILED = "An error occured while deleting Project with ID: %d.";
 	public static final String DELETE_ALL_PROJECTS_ON_SUCCESS = "All projects has been deleted successfully!";
