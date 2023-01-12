@@ -1,7 +1,9 @@
 package com.afourathon.project_management_rest_api.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,6 +18,7 @@ public class Configurations implements WebMvcConfigurer {
 	public static final String PROJECT_ADD_ON_FAILED = "An error occured while adding new project into database.";
 	public static final String PROJECT_UPDATE_ON_SUCCESS = "Project {ID: %d} has been updated successfully!";
 	public static final String PROJECT_UPDATE_ON_FAILED = "An error occured while updating Project with ID: %d.";
+	public static final String PROJECT_ALREADY_EXIST = "Project already exists with name: %s.";
 	public static final String DELETE_PROJECT_ON_SUCCESS = "Project {ID: %d} has been deleted successfully!";
 	public static final String DELETE_PROJECT_ON_FAILED = "An error occured while deleting Project with ID: %d.";
 	public static final String DELETE_ALL_PROJECTS_ON_SUCCESS = "All projects has been deleted successfully!";
@@ -37,7 +40,20 @@ public class Configurations implements WebMvcConfigurer {
 	
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		System.out.println(CORS_ORIGIN_URL);
 		registry.addMapping("/**").allowedOrigins(CORS_ORIGIN_URL);
 	}
+	
+	// Adding a bean definition to enable HTTP request logging
+	@Bean
+    public CommonsRequestLoggingFilter logFilter() {
+        CommonsRequestLoggingFilter filter
+          = new CommonsRequestLoggingFilter();
+        filter.setIncludeQueryString(true);
+        filter.setIncludePayload(true);
+        filter.setMaxPayloadLength(10000);
+        filter.setIncludeHeaders(false);
+        filter.setAfterMessagePrefix("REQUEST DATA: ");
+        return filter;
+    }
+	
 }

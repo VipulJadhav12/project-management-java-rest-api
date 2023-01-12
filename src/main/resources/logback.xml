@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <property name="logging_file_path" value="logs"/>
+
+  <appender name="Console-Appender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{dd-MM-yyyy HH:mm:ss} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+  
+ <appender name="File-Appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logging_file_path}/project-management-rest-api.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logging_file_path}/project-management-rest-api.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>10</maxHistory>
+      <totalSizeCap>10MB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level - %msg%n</pattern>
+      <outputPatternAsHeader>false</outputPatternAsHeader>
+    </encoder>
+  </appender>
+  
+  <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" additivity="false">
+        <appender-ref ref="Console-Appender"/>
+        <appender-ref ref="File-Appender"/>
+  </logger>
+  
+  <logger name="com.afourathon.project_management_rest_api.advice" level="INFO" additivity="false">
+        <appender-ref ref="Console-Appender"/>
+        <appender-ref ref="File-Appender"/>
+  </logger>
+  
+  <root level="INFO">
+    <appender-ref ref="Console-Appender"/>
+    <appender-ref ref="File-Appender"/>
+  </root>
+ 
+</configuration>

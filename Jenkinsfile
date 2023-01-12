@@ -53,8 +53,8 @@ pipeline{
                enableConfigSubstitution: true)
             */
 
-     echo "docker run -v ${WORKSPACE}:${WORKSPACE} dtzar/helm-kubectl:2.13.1 helm template --set image.tag=${VERSION_TAG} ${WORKSPACE}/${GIT_HELM_PATH} > ${WORKSPACE}/${ENV_JOB_NAME}-manifest.yaml" 
-        sh "docker run -v ${WORKSPACE}:${WORKSPACE} dtzar/helm-kubectl:2.13.1 helm template --set image.tag=${VERSION_TAG} ${WORKSPACE}/${GIT_HELM_PATH} > ${WORKSPACE}/${ENV_JOB_NAME}-manifest.yaml"  
+     echo "docker run -v ${WORKSPACE}:${WORKSPACE} dtzar/helm-kubectl:3.9.0 helm template --set image.tag=${VERSION_TAG} ${WORKSPACE}/${GIT_HELM_PATH} > ${WORKSPACE}/${ENV_JOB_NAME}-manifest.yaml" 
+        sh "docker run -v ${WORKSPACE}:${WORKSPACE} dtzar/helm-kubectl:3.9.0 helm template --set image.tag=${VERSION_TAG} ${WORKSPACE}/${GIT_HELM_PATH} > ${WORKSPACE}/${ENV_JOB_NAME}-manifest.yaml"  
 
             withKubeConfig( credentialsId: 'mightyminions-kubeconfig' ) {
             sh '''
@@ -65,9 +65,5 @@ pipeline{
                 }
             }
         }
-
-
-
-
     }
 }

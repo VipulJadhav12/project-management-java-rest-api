@@ -112,6 +112,10 @@ public class JpaMailingListService implements MailingListService {
 			MailingList emailToBeDeleted = objExistingEmail.get();
 
 			try {
+				// Deleting email id mapping from the join table 
+				mailingListRepository.deleteEmailByProjects(mailId);
+				
+				// Deleting actual email entity from database
 				mailingListRepository.delete(emailToBeDeleted);
 			}
 			catch(IllegalArgumentException ex) {
