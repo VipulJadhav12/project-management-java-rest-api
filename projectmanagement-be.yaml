@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projectmanagement-be-deployment
+  labels:
+    app: projectmanagement-be
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: projectmanagement-be
+  template:
+    metadata:
+      labels:
+        app: projectmanagement-be
+    spec:
+      volumes:
+        - name: "placeholder-values"
+          secret:
+            secretName: "afourathon-wsr"
+      containers:
+      - name: projectmanagement-be
+        image: $imageName
+        volumeMounts:
+          - name: "placeholder-values"
+            mountPath: "/app/env.values"
+            subPath: "env.values"
+        # imagePullPolicy: Never
+        ports:
+        - containerPort: 9191
+      #imagePullSecrets:
+      # kubernetes secret created for docker registry
+      #- name: private-registry-creds
+      #nodeName: k8s-worker-5
