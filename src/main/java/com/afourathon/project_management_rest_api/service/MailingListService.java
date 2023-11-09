@@ -38,8 +38,6 @@ public interface MailingListService {
 	 */
 	public boolean deleteEmailById(Long mailId);
 	
-	public boolean deleteEmailByIdAndProjectId(Long projectId, Long mailId);
-	
 	public boolean deleteAllEmails();
 
 }

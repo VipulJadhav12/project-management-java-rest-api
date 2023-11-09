@@ -2,8 +2,6 @@ package com.afourathon.project_management_rest_api.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Sort;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.afourathon.project_management_rest_api.data.entity.MailingList;
-import com.afourathon.project_management_rest_api.data.entity.Project;
 import com.afourathon.project_management_rest_api.data.payloads.repository.MailingListRepository;
 import com.afourathon.project_management_rest_api.data.payloads.repository.ProjectRepository;
 import com.afourathon.project_management_rest_api.data.payloads.request.MailingListRequest;
@@ -123,38 +120,6 @@ public class JpaMailingListService implements MailingListService {
 			}
 			catch(OptimisticLockingFailureException ex) {
 				return false;
-			}
-		}
-
-		return true;
-	}
-
-	@Transactional
-	@Override
-	public boolean deleteEmailByIdAndProjectId(Long projectId, Long mailId) {
-		Optional<Project> objExistingProject = projectRepository.findById(projectId);
-		Optional<MailingList> objExistingEmail = mailingListRepository.findById(mailId);
-
-		if(objExistingProject.isPresent()) {
-			Project existingProject = objExistingProject.get();
-
-			if(objExistingEmail.isPresent()) {
-				MailingList emailToBeDeleted = objExistingEmail.get();
-
-				Set<MailingList> existingMailingList = existingProject.getMailingList();
-
-				if(existingMailingList.contains(emailToBeDeleted))
-					return false;
-
-				try {
-					mailingListRepository.delete(emailToBeDeleted);
-				}
-				catch(IllegalArgumentException ex) {
-					return false;
-				}
-				catch(OptimisticLockingFailureException ex) {
-					return false;
-				}
 			}
 		}
 

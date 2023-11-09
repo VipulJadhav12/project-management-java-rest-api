@@ -1,16 +1,19 @@
 package com.afourathon.project_management_rest_api;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,59 +55,44 @@ class ProjectServiceTests {
 
 	@Test
 	public void findProjectByIdTest() {
-		Long projectId = 1001L;
-
-		Set<MailingList> mailingList = new HashSet<>();
-
-		mailingList.add(new MailingList(1L, "John Smith", "john.smith@myorg.com"));
-		mailingList.add(new MailingList(2L, "Foo Bar", "foo.bar@myorg.com"));
+		Project project = getProjectDetails();
+		Long projectId = project.getId();
 		
-		Project project = new Project();
-		project.setId(projectId);
-		project.setName("Test Spring Boot Project");
-		project.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project.setManagerName("John Smith");
-		project.setManagerEmail("john.smith@myorg.com");
-		project.setMailingList(mailingList);
+		Optional<Project> expectedOptProjectObj = Optional.of(project);
+
+		when(projectRepository.findById(projectId)).thenReturn(expectedOptProjectObj);
 		
-		Optional<Project> objProject = Optional.of(project);
+		Optional<Project> actualOptProjectObj = projectService.findProjectById(projectId);
+		
+		Project expectedProject = expectedOptProjectObj.get();
+		Project actualProject = actualOptProjectObj.get();
 
-		when(projectRepository.findById(projectId)).thenReturn(objProject);
-
-		assertTrue(projectService.findProjectById(projectId).isPresent());
+		assertTrue(actualOptProjectObj.isPresent());
+		assertEquals(expectedProject, actualProject);
+		
+		assertAll(
+				() -> assertEquals(expectedProject.getId(), actualProject.getId()),
+				() -> assertEquals(expectedProject.getName(), actualProject.getName()),
+				() -> assertEquals(expectedProject.getManagerName(), actualProject.getManagerName()),
+				() -> assertEquals(expectedProject.getManagerEmail(), actualProject.getManagerEmail())
+		);
+		
+		verify(projectRepository, times(1)).findById(projectId);
 	}
 
 	@Test
 	public void findAllProjectsTest() {
-		Set<MailingList> mailingList = new HashSet<>();
-
-		mailingList.add(new MailingList(1L, "John Smith", "john.smith@myorg.com"));
-		mailingList.add(new MailingList(2L, "Foo Bar", "foo.bar@myorg.com"));
-		
-		Project project1 = new Project();
-		project1.setId(1001L);
-		project1.setName("Test Spring Boot Project #1");
-		project1.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project1.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project1.setManagerName("John Smith");
-		project1.setManagerEmail("john.smith@myorg.com");
-		project1.setMailingList(mailingList);
-		
-		Project project2 = new Project();
-		project2.setId(1002L);
-		project2.setName("Test Spring Boot Project #2");
-		project2.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project2.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project2.setManagerName("Joe Daniel");
-		project2.setManagerEmail("joe.daniel@myorg.com");
-		project2.setMailingList(mailingList);
+		Project project = getProjectDetails();
 
 		when(projectRepository.findAll()).thenReturn(
-				Stream.of(project1, project2)
+				Stream.of(project)
 				.collect(Collectors.toList()));
+		
+		List<Project> actualListOfProjects = projectService.findAllProjects();
 
-		assertEquals(2, projectService.findAllProjects().size());
+		assertEquals(1, actualListOfProjects.size());
+		
+		verify(projectRepository, times(1)).findAll();
 	}
 
 	@Test
@@ -112,153 +100,109 @@ class ProjectServiceTests {
 		ProjectRequest projectRequest = new ProjectRequest("Test Spring Boot Project", new String("1970-01-01"), 
 				new String("1970-12-31"), "John Smith", "john.smith@myorg.com");
 
-		Set<MailingList> mailingList = new HashSet<>();
+		Project expectedProject = getProjectDetailsBasedOnProjectRequest(projectRequest);
 
-		mailingList.add(new MailingList(1L, "John Smith", "john.smith@myorg.com"));
-		mailingList.add(new MailingList(2L, "Foo Bar", "foo.bar@myorg.com"));
+		when(projectRepository.save(any(Project.class))).thenReturn(expectedProject);
 		
-		Project project = new Project(projectRequest.getName(), LocalDate.parse(projectRequest.getStartDate()),
-				LocalDate.parse(projectRequest.getEndDate()), projectRequest.getManagerName(), 
-				projectRequest.getManagerEmail(), mailingList);
+		Project actualProject = projectService.addProject(projectRequest);
 
-		when(projectRepository.save(any(Project.class))).thenReturn(project);
-
-		assertEquals(project, projectService.addProject(projectRequest));
+		assertEquals(expectedProject, actualProject);
+		
+		assertAll(
+				() -> assertEquals(expectedProject.getId(), actualProject.getId()),
+				() -> assertEquals(expectedProject.getName(), actualProject.getName()),
+				() -> assertEquals(expectedProject.getManagerName(), actualProject.getManagerName()),
+				() -> assertEquals(expectedProject.getManagerEmail(), actualProject.getManagerEmail())
+		);
+		
+		verify(projectRepository, times(1)).save(any(Project.class));
 	}
 
 	@Test
 	public void updateProjectTest() {
-		Long projectId = 1001L;
-		String updatedProjectName = "Spring Boot Project - #1";
-		String updatedManagerEmail = "johnny.smith@myinternationalorg.com";
+		String projectNameToBeUpdated = "Spring Boot Project - #1";
+		String managerEmailToBeUpdated = "johnny.smith@myinternationalorg.com";
 
-		Project originalProject = new Project();
-		originalProject.setId(1001L);
-		originalProject.setName("Test Spring Boot Project #1");
-		originalProject.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		originalProject.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		originalProject.setManagerName("John Smith");
-		originalProject.setManagerEmail("john.smith@myorg.com");
+		ProjectRequest projectRequest = new ProjectRequest(projectNameToBeUpdated, new String("2023-01-01"), 
+				new String("2023-12-31"), "John Smith", managerEmailToBeUpdated);
 
-		ProjectRequest projectRequest = new ProjectRequest(updatedProjectName, new String("2023-01-01"), 
-				new String("2023-12-31"), "John Smith", updatedManagerEmail);
+		Project expectedProject = getProjectDetailsBasedOnProjectRequest(projectRequest);
+		Long projectId = expectedProject.getId();
+		
+		Optional<Project> expectedOptProjectObj =  Optional.of(expectedProject);
+		
+		when(projectRepository.findById(projectId)).thenReturn(expectedOptProjectObj);
+		when(projectRepository.save(any(Project.class))).thenReturn(expectedOptProjectObj.get());
+		
+		Project actualProject = projectService.updateProject(projectId, projectRequest);
 
-		Project updatedProject = originalProject;
-		updatedProject.setName(projectRequest.getName());
-		updatedProject.setStartDate(LocalDate.parse(projectRequest.getStartDate(), DateTimeFormatter.ISO_LOCAL_DATE));
-		updatedProject.setEndDate(LocalDate.parse(projectRequest.getEndDate(), DateTimeFormatter.ISO_LOCAL_DATE));
-		updatedProject.setManagerName(projectRequest.getManagerName());
-		updatedProject.setManagerEmail(projectRequest.getManagerEmail());
-
-		when(mock(ProjectService.class).updateProject(projectId, projectRequest)).thenReturn(updatedProject).getMock();
-
-		assertTrue(updatedProject.getName().equalsIgnoreCase(updatedProjectName));
-		assertTrue(updatedProject.getManagerEmail().equalsIgnoreCase(updatedManagerEmail));
+		assertEquals(expectedProject, actualProject);
+		assertTrue(actualProject.getName().equalsIgnoreCase(expectedProject.getName()));
+		assertTrue(actualProject.getManagerEmail().equalsIgnoreCase(expectedProject.getManagerEmail()));
+		
+		verify(projectRepository, times(1)).findById(projectId);
+		verify(projectRepository, times(1)).save(any(Project.class));
 	}
 
 	@Test
-	public void assignMailToProject() {
-		// Testing Project
-		Long projectId = 1001L;
+	public void assignMailToProjectTest() {
+		Project expectedProject = getProjectDetails();
+		Long projectId = expectedProject.getId();
 		
-		Set<MailingList> mailingList = new HashSet<>();
-
-		mailingList.add(new MailingList(1L, "John Smith", "john.smith@myorg.com"));
-		mailingList.add(new MailingList(2L, "Foo Bar", "foo.bar@myorg.com"));
+		Optional<Project> expectedOptProjectObj = Optional.of(expectedProject);
+		when(projectRepository.findById(anyLong())).thenReturn(expectedOptProjectObj);
 		
-		Project project = new Project();
-		project.setId(projectId);
-		project.setName("Test Spring Boot Project");
-		project.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project.setManagerName("John Smith");
-		project.setManagerEmail("john.smith@myorg.com");
-		project.setMailingList(mailingList);
+		Long mailId = 103L;
+		MailingList emailToBeAdded = new MailingList(mailId, "Joe Doe", "joe.doe@myorg.com");
+		Optional<MailingList> optEmailObj = Optional.of(emailToBeAdded);
+		when(mailingListRepository.findById(anyLong())).thenReturn(optEmailObj);
 		
-		Optional<Project> objProject = Optional.of(project);
+		when(projectRepository.save(any(Project.class))).thenReturn(expectedProject);
+		
+		Project actualProject = projectService.assignMailToProject(projectId, mailId);
+		
+		assertEquals(expectedProject, actualProject);
+		assertEquals(3, actualProject.getMailingList().size());
 
-		when(projectRepository.findById(projectId)).thenReturn(objProject);
-
-		assertTrue(projectService.findProjectById(projectId).isPresent());
-
-		// Testing Email
-		Long mailId = 3L;
-
-		Optional<MailingList> objMailingList = Optional.of(new MailingList(mailId, "John Smith", "john.smith@myorg.com"));
-
-		when(mailingListRepository.findById(mailId)).thenReturn(objMailingList);
-
-		assertTrue(mailingListService.findEmailById(mailId).isPresent());
-
-		if(objProject.isPresent()) {
-			Project existingProject = objProject.get();
-			MailingList mailingListToBeAssigned = objMailingList.get();
-			existingProject.getMailingList().add(mailingListToBeAssigned);
-
-			when(mock(ProjectService.class).assignMailToProject(projectId, mailId)).thenReturn(existingProject).getMock();
-
-			assertTrue("Email with ID: " + mailId + " has been added successfully to Project with ID: " + projectId, existingProject.getMailingList().size() == 3);
-		}
+		assertTrue(actualProject.getMailingList().contains(emailToBeAdded));
+		
+		verify(projectRepository, atLeast(1)).findById(anyLong());
+		verify(projectRepository, atLeast(1)).save(any(Project.class));
+		verify(mailingListRepository, atLeast(1)).findById(anyLong());
 	}
 
 	@Test
 	public void removeAssignedMailFromProject() {
-		// Testing Project
-		Long projectId = 1001L;
+		Project expectedProject = getProjectDetails();
+		Long projectId = expectedProject.getId();
 		
-		Long mailId = 1L;
-
-		Optional<MailingList> objMailingList = Optional.of(new MailingList(mailId, "John Smith", "john.smith@myorg.com"));
-		MailingList mailingListToBeRemoved = objMailingList.get();
+		Optional<Project> expectedOptProjectObj = Optional.of(expectedProject);
+		when(projectRepository.findById(anyLong())).thenReturn(expectedOptProjectObj);
 		
-		Set<MailingList> mailingList = new HashSet<>();
-		mailingList.add(mailingListToBeRemoved);
-
-		Project project = new Project();
-		project.setId(projectId);
-		project.setName("Test Spring Boot Project");
-		project.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project.setManagerName("John Smith");
-		project.setManagerEmail("john.smith@myorg.com");
-		project.setMailingList(mailingList);
+		Long mailId = 102L;
+		Optional<MailingList> optEmailObj = expectedProject.getMailingList().stream()
+			.filter(email -> email.getId() == mailId)
+			.findFirst();
+		MailingList emailToBeRemoved = optEmailObj.get();
+		when(mailingListRepository.findById(anyLong())).thenReturn(optEmailObj);
 		
-		Optional<Project> objProject = Optional.of(project);
+		when(projectRepository.save(any(Project.class))).thenReturn(expectedProject);
+		
+		Project actualProject = projectService.removeAssignedMailFromProject(projectId, mailId);
+		
+		assertEquals(expectedProject, actualProject);
+		assertEquals(1, actualProject.getMailingList().size());
 
-		when(projectRepository.findById(projectId)).thenReturn(objProject);
-
-		assertTrue(projectService.findProjectById(projectId).isPresent());
-
-		// Testing Email
-		when(mailingListRepository.findById(mailId)).thenReturn(objMailingList);
-
-		assertTrue(mailingListService.findEmailById(mailId).isPresent());
-
-		if(objProject.isPresent()) {
-			Project existingProject = objProject.get();
-			existingProject.getMailingList().remove(mailingListToBeRemoved);
-
-			when(mock(ProjectService.class).removeAssignedMailFromProject(projectId, mailId)).thenReturn(existingProject).getMock();
-
-			assertTrue("Email with ID: " + mailId + " has been successfully removed from Project with ID: " + projectId, existingProject.getMailingList().size() == 0);
-		}
+		assertFalse(actualProject.getMailingList().contains(emailToBeRemoved));
+		
+		verify(projectRepository, atLeast(1)).findById(anyLong());
+		verify(projectRepository, atLeast(1)).save(any(Project.class));
+		verify(mailingListRepository, atLeast(1)).findById(anyLong());
 	}
 
 	@Test
 	public void deleteProjectTest() {
-		Set<MailingList> mailingList = new HashSet<>();
-
-		mailingList.add(new MailingList(1L, "John Smith", "john.smith@myorg.com"));
-		mailingList.add(new MailingList(2L, "Foo Bar", "foo.bar@myorg.com"));
-		
-		Project project = new Project();
-		project.setId(1001L);
-		project.setName("Test Spring Boot Project");
-		project.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project.setManagerName("John Smith");
-		project.setManagerEmail("john.smith@myorg.com");
-		project.setMailingList(mailingList);
+		Project project = getProjectDetails();
 
 		projectService.deleteProject(project);
 
@@ -270,6 +214,50 @@ class ProjectServiceTests {
 		projectService.deleteAllProjects();
 
 		verify(projectRepository, times(1)).deleteAll();;
+	}
+	
+	private Project getProjectDetails() {
+		Long projectId = 1001L;
+		
+		Project project = new Project();
+		project.setId(projectId);
+		project.setName("Test Spring Boot Project");
+		project.setStartDate(LocalDate.parse(new String("2022-01-01")));
+		project.setEndDate(LocalDate.parse(new String("2022-12-31")));
+		project.setManagerName("John Smith");
+		project.setManagerEmail("john.smith@myorg.com");
+		
+		project.setMailingList(getMailingListDetails());
+		
+		return project;
+	}
+	
+	private Project getProjectDetailsBasedOnProjectRequest(ProjectRequest request) {
+		Long projectId = 1001L;
+		
+		Project project = new Project();
+		project.setId(projectId);
+		project.setName(request.getName());
+		project.setStartDate(LocalDate.parse(request.getStartDate()));
+		project.setEndDate(LocalDate.parse(request.getEndDate()));
+		project.setManagerName(request.getManagerName());
+		project.setManagerEmail(request.getManagerEmail());
+		
+		project.setMailingList(getMailingListDetails());
+		
+		return project;
+	}
+	
+	private Set<MailingList> getMailingListDetails() {
+		Long firstMailId = 101L;
+		Long secondMailId = 102L;
+		
+		Set<MailingList> mailingList = new HashSet<>();
+
+		mailingList.add(new MailingList(firstMailId, "John Smith", "john.smith@myorg.com"));
+		mailingList.add(new MailingList(secondMailId, "Foo Bar", "foo.bar@myorg.com"));
+		
+		return mailingList;
 	}
 
 }

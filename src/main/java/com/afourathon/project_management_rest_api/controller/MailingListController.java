@@ -135,28 +135,6 @@ public class MailingListController {
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 	
-	@DeleteMapping("/deleteBy=ID/project/{projectId}/email/{mailId}")
-	public ResponseEntity<ApiResponse> deleteEmailByProjectId(@PathVariable Long projectId, @PathVariable Long mailId) 
-			throws ProjectNotFoundException, EmailNotFoundException {
-		if(!projectService.checkIfProjectExistsById(projectId)) {
-			throw new ProjectNotFoundException(String.format(Configurations.INVALID_PROJECT_ID, projectId));
-		}
-
-		if(!mailingListService.checkIfEmailExistsById(mailId)) {
-			throw new EmailNotFoundException(String.format(Configurations.INVALID_EMAIL_ID, mailId));
-		}
-		
-		ApiResponse apiResponse = null;
-		boolean isDeleted = mailingListService.deleteEmailByIdAndProjectId(projectId, mailId);
-		if(!isDeleted) {
-			apiResponse = new ApiResponse(String.format(Configurations.DELETE_EMAIL_ON_FAILED, mailId), HttpStatus.INTERNAL_SERVER_ERROR);
-			return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
-		apiResponse = new ApiResponse(String.format(Configurations.DELETE_EMAIL_ON_SUCCESS, mailId), HttpStatus.OK);
-		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-	}
-	
 	@DeleteMapping("/deleteAllBy=NONE")
 	public ResponseEntity<ApiResponse> deleteAllEmails() {
 		boolean isAllDeleted = mailingListService.deleteAllEmails();

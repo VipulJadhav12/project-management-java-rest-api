@@ -1,16 +1,16 @@
 package com.afourathon.project_management_rest_api;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,7 +24,6 @@ import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Sort;
 
 import com.afourathon.project_management_rest_api.data.entity.MailingList;
-import com.afourathon.project_management_rest_api.data.entity.Project;
 import com.afourathon.project_management_rest_api.data.payloads.repository.MailingListRepository;
 import com.afourathon.project_management_rest_api.data.payloads.repository.ProjectRepository;
 import com.afourathon.project_management_rest_api.data.payloads.request.MailingListRequest;
@@ -51,107 +50,162 @@ public class MailingListServiceTests {
 
 	@Test
 	public void findEmailByIdTest() {
-		Long mailId = 101L;
+		MailingList mailingList = getMailingListDetails();
+		Long mailId = mailingList.getId();
 
-		Optional<MailingList> objMailingList = Optional.of(new MailingList(mailId, "John Smith", "john.smith@myorg.com"));
+		Optional<MailingList> expectedOptMailingListObj = Optional.of(mailingList);
 
-		when(mailingListRepository.findById(mailId)).thenReturn(objMailingList);
+		when(mailingListRepository.findById(mailId)).thenReturn(expectedOptMailingListObj);
 
-		assertTrue(mailingListService.findEmailById(mailId).isPresent());
+		Optional<MailingList> actualOptMailingListObj = mailingListService.findEmailById(mailId);
+		
+		MailingList expectedMailingList = expectedOptMailingListObj.get();
+		MailingList actualMailingList = actualOptMailingListObj.get();
+		
+		assertTrue(actualOptMailingListObj.isPresent());
+		assertEquals(expectedMailingList, actualMailingList);
+		
+		assertAll(
+				() -> assertEquals(expectedMailingList.getId(), actualMailingList.getId()),
+				() -> assertEquals(expectedMailingList.getRecipientName(), actualMailingList.getRecipientName()),
+				() -> assertEquals(expectedMailingList.getEmail(), actualMailingList.getEmail())
+		);
+		
+		verify(mailingListRepository, times(1)).findById(mailId);
 	}
 
 	@Test
 	public void findEmailByRecipientNameTest() {
-		String recipientName = "John Smith";
+		MailingList mailingList = getMailingListDetails();
+		String recipientName = mailingList.getRecipientName();
 
 		when(mailingListRepository.findByRecipientName(recipientName)).thenReturn(
-				Stream.of(new MailingList(1L, "John Smith", "john.smith@myorg.com"))
+				Stream.of(mailingList)
 				.collect(Collectors.toList()));
+		
+		List<MailingList> actualMailingList = mailingListService.findEmailByRecipientName(recipientName);
 
-		assertEquals(1, mailingListService.findEmailByRecipientName(recipientName).size());
+		assertEquals(1, actualMailingList.size());
+		
+		verify(mailingListRepository, atLeast(1)).findByRecipientName(recipientName);
 	}
 
 	@Test
 	public void findAllEmailsTest() {
 		String field = "recipientName";
+		
+		MailingList mailingList = getMailingListDetails();
+		
 		when(mailingListRepository.findAll(Sort.by(Sort.Direction.ASC, field))).thenReturn(
-				Stream.of(new MailingList(1L, "John Smith", "john.smith@myorg.com"),
-						new MailingList(2L, "Foo Bar", "foo.bar@myorg.com"))
+				Stream.of(mailingList)
 				.collect(Collectors.toList()));
+		
+		List<MailingList> actualMailingList = mailingListService.findAllEmails();
 
-		assertEquals(2, mailingListService.findAllEmails().size());
+		assertEquals(1, actualMailingList.size());
+		
+		verify(mailingListRepository, atLeast(1)).findAll(Sort.by(Sort.Direction.ASC, field));
+	}
+	
+	@Test
+	public void addEmailTest() {
+		String recipientNameToBeAdded = "Johnny Smith";
+		String emailToBeAdded = "johnny.smith@myinternationalorg.com";
+
+		MailingListRequest mailingListRequest = new MailingListRequest(recipientNameToBeAdded, emailToBeAdded);
+		
+		MailingList expectedMailingList = getMailingListDetailsBasedOnMailingListRequest(mailingListRequest);
+		
+		when(mailingListRepository.save(any(MailingList.class))).thenReturn(expectedMailingList);
+		
+		MailingList actualMailingList = mailingListService.addEmail(mailingListRequest);
+
+		assertEquals(expectedMailingList, actualMailingList);
+		
+		assertAll(
+				() -> assertEquals(expectedMailingList.getId(), actualMailingList.getId()),
+				() -> assertEquals(expectedMailingList.getRecipientName(), actualMailingList.getRecipientName()),
+				() -> assertEquals(expectedMailingList.getEmail(), actualMailingList.getEmail())
+		);
+		
+		verify(mailingListRepository, times(1)).save(any(MailingList.class));
 	}
 
 	@Test
 	public void updateEmailTest() {
-		Long mailId = 101L;
-		String updatedRecipientName = "Johnny Smith";
-		String updatedMEmail = "johnny.smith@myinternationalorg.com";
+		String recipientNameToBeUpdated = "Johnny Smith";
+		String emailToBeUpdated = "johnny.smith@myinternationalorg.com";
 
-		MailingList originalEmail = new MailingList(mailId, "John Smith", "john.smith@myorg.com");
+		MailingListRequest mailingListRequest = new MailingListRequest(recipientNameToBeUpdated, emailToBeUpdated);
 
-		MailingListRequest mailingListRequest = new MailingListRequest(updatedRecipientName, updatedMEmail);
+		MailingList expectedMailingList = getMailingListDetailsBasedOnMailingListRequest(mailingListRequest);
+		Long mailId = expectedMailingList.getId();
 
-		MailingList updatedEmail = originalEmail;
-		updatedEmail.setRecipientName(mailingListRequest.getRecipientName());
-		updatedEmail.setEmail(mailingListRequest.getEmail());
+		Optional<MailingList> expectedOptMailingListObj =  Optional.of(expectedMailingList);
+		
+		when(mailingListRepository.findById(mailId)).thenReturn(expectedOptMailingListObj);
+		when(mailingListRepository.save(any(MailingList.class))).thenReturn(expectedOptMailingListObj.get());
 
-		when(mock(MailingListService.class).updateEmail(mailId, mailingListRequest)).thenReturn(updatedEmail).getMock();
+		MailingList actualMailingList = mailingListService.updateEmail(mailId, mailingListRequest);
 
-		assertTrue(updatedEmail.getRecipientName().equalsIgnoreCase(updatedRecipientName));
-		assertTrue(updatedEmail.getEmail().equalsIgnoreCase(updatedMEmail));
-
+		assertEquals(expectedMailingList, actualMailingList);
+		assertTrue(actualMailingList.getRecipientName().equalsIgnoreCase(expectedMailingList.getRecipientName()));
+		assertTrue(actualMailingList.getEmail().equalsIgnoreCase(expectedMailingList.getEmail()));
+		
+		verify(mailingListRepository, times(1)).findById(mailId);
+		verify(mailingListRepository, times(1)).save(any(MailingList.class));
 	}
 
 	@Test
-	public void deleteEmailTest() {
-		// Testing Project
-		Long projectId = 1001L;
-		Project project = new Project();
-		project.setId(projectId);
-		project.setName("Test Spring Boot Project");
-		project.setStartDate(LocalDate.parse(new String("2022-01-01")));
-		project.setEndDate(LocalDate.parse(new String("2022-12-31")));
-		project.setManagerName("John Smith");
-		project.setManagerEmail("john.smith@myorg.com");
-		project.setMailingList(new HashSet<>());
-
-		Optional<Project> objProject = Optional.of(project);
-
-		when(projectRepository.findById(projectId)).thenReturn(objProject);
-
-		assertTrue(projectService.findProjectById(projectId).isPresent());
+	public void deleteEmailByIdTest() {
+		MailingList mailingList = getMailingListDetails();
+		Long mailId = mailingList.getId();
 		
-		// Testing Mailing List
-		Long mailId = 101L;
-		MailingList email = new MailingList(mailId, "John Smith", "john.smith@myorg.com");
+		Optional<MailingList> expectedOptMailingListObj = Optional.of(mailingList);
 		
-		Optional<MailingList> objExistingEmail = Optional.of(email);
-
-		when(mailingListRepository.findById(mailId)).thenReturn(objExistingEmail);
-
-		assertTrue(mailingListService.findEmailById(mailId).isPresent());
+		when(mailingListRepository.findById(mailId)).thenReturn(expectedOptMailingListObj);
 		
-		MailingList emailToBeDeleted = null;
+		boolean actualResultOnDeletion = mailingListService.deleteEmailById(mailId);
 		
-		if(objExistingEmail.isPresent())
-			emailToBeDeleted = objExistingEmail.get();
-
-		if(objProject.isPresent()) {
-			Project existingProject = objProject.get();
-			
-			Set<MailingList> existingMailingList = existingProject.getMailingList();
-			
-			if(!existingMailingList.contains(emailToBeDeleted))
-				mailingListRepository.delete(emailToBeDeleted);
-		}
+		MailingList mailingListToBeDeleted = expectedOptMailingListObj.get();
+		
+		assertTrue(actualResultOnDeletion);
+		
+		verify(mailingListRepository, times(1)).findById(mailId);
+		verify(mailingListRepository, times(1)).deleteEmailByProjects(mailId);
+		verify(mailingListRepository, times(1)).delete(mailingListToBeDeleted);;
 	}
 	
 	@Test
 	public void deleteAllEmailsTest() {
-		mailingListService.deleteAllEmails();
+		when(mailingListRepository.count()).thenReturn(0L);
+		
+		boolean actualResultOnDeletion = mailingListService.deleteAllEmails();
+		
+		assertTrue(actualResultOnDeletion);
 
-		verify(mailingListRepository, times(1)).deleteAll();;
+		verify(mailingListRepository, times(1)).count();
+		verify(mailingListRepository, times(1)).deleteAll();
+	}
+	
+	private MailingList getMailingListDetails() {
+		Long mailId = 101L;
+		
+		MailingList mailingList = 
+				new MailingList(mailId, "John Smith", "john.smith@myorg.com");
+		
+		return mailingList;
+	}
+	
+	private MailingList getMailingListDetailsBasedOnMailingListRequest(MailingListRequest request) {
+		Long mailId = 101L;
+		
+		MailingList mailingList = new MailingList();
+		mailingList.setId(mailId);
+		mailingList.setRecipientName(request.getRecipientName());
+		mailingList.setEmail(request.getEmail());
+		
+		return mailingList;
 	}
 
 }
